@@ -6,11 +6,27 @@ using System.Diagnostics;
 
 namespace NonJobEvent.Application.Handlers;
 
+// DL: when looking at functions that consume `IQueryHandler`/`ICommandHandler` in the controllers, I felt some cognitive overload,
+// particularly with nested types (like `IQueryHandler<Queries.GetCalendarEvents, Persistence.Result<IEnumerable<OneOf<OneOffEvent, RecurringEvent.Occurrence>>>>`).
+// What do you think of explicitly-named interfaces instead?
+public interface IGetCalendarEventsQueryHandler
+    : IQueryHandler<Queries.GetCalendarEvents, Persistence.Result<IEnumerable<OneOf<OneOffEvent, RecurringEvent.Occurrence>>>> { }
+
+public interface IAddOneOffEventCommandHandler 
+    : ICommandHandler<Commands.AddOneOffEvent, Persistence.Result.Version> { }
+
+public interface IDeleteOneOffEventCommandHandler 
+    : ICommandHandler<Commands.DeleteOneOffEvent, Common.Void> { }
+
+public interface IChangeOneOffEventCommandHandler
+    : ICommandHandler<Commands.ChangeOneOffEvent, Persistence.Result.Version> { }
+
+
 public class CalendarCommandQueryHandler :
-    IQueryHandler<Queries.GetCalendarEvents, Persistence.Result<IEnumerable<OneOf<OneOffEvent, RecurringEvent.Occurrence>>>>,
-    ICommandHandler<Commands.AddOneOffEvent, Persistence.Result.Version>,
-    ICommandHandler<Commands.DeleteOneOffEvent, Common.Void>,
-    ICommandHandler<Commands.ChangeOneOffEvent, Persistence.Result.Version>
+    IGetCalendarEventsQueryHandler,
+    IAddOneOffEventCommandHandler,
+    IDeleteOneOffEventCommandHandler,
+    IChangeOneOffEventCommandHandler
 {
     private readonly ICalendarRepository repo;
 
